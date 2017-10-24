@@ -2,6 +2,8 @@ package com.code;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ContainerAdapter;
 import java.awt.event.ContainerEvent;
 
@@ -27,9 +29,12 @@ import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleEdge;
 
 
 public class App extends JFrame {
@@ -40,60 +45,47 @@ public class App extends JFrame {
     private JLabel TempCon;
     private JLabel TempIns;
     private JLabel RegTemp;
+    //dsd
 
 
     public App() {
 
-        JPanel chartPanel = createChartPanel();
-        add(chartPanel, BorderLayout.CENTER);
-
-        setSize(640, 480);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
         panelMain.addContainerListener(new ContainerAdapter() {
             @Override
             public void componentAdded(ContainerEvent e) {
                 super.componentAdded(e);
+            }
+        });
 
+        graph.addContainerListener(new ContainerAdapter() {
+            @Override
+            public void componentAdded(ContainerEvent e) {
+                super.componentAdded(e);
 
             }
         });
-    }
 
-    private JPanel createChartPanel() {
-        String chartTitle = "Objects Movement Chart";
+
+
+        String chartTitle = "Graphique température";
         String xAxisLabel = "X";
         String yAxisLabel = "Y";
 
         XYDataset dataset = createDataset();
 
-        JFreeChart chart = ChartFactory.createXYLineChart(chartTitle, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart barChartData = ChartFactory.createXYLineChart(chartTitle, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, false);
 
-//		boolean showLegend = false;
-//		boolean createURL = false;
-//		boolean createTooltip = false;
-//
-//		JFreeChart chart = ChartFactory.createXYLineChart(chartTitle,
-//				xAxisLabel, yAxisLabel, dataset,
-//				PlotOrientation.HORIZONTAL, showLegend, createTooltip, createURL);
+        customizeChart(barChartData);
 
-        customizeChart(chart);
-
-        // saves the chart as an image files
-        File imageFile = new File("XYLineChart.png");
-        int width = 340;
-        int height = 180;
-
-        try {
-            ChartUtilities.saveChartAsPNG(imageFile, chart, width, height);
-        } catch (IOException ex) {
-            System.err.println(ex);
-        }
-
-        return new ChartPanel(chart);
+        ChartPanel barPanel = new ChartPanel(barChartData);
+        graph.removeAll();
+        graph.add(barPanel,BorderLayout.CENTER);
     }
 
+
+
+    //Donnée du tableau
     private XYDataset createDataset() {
         XYSeriesCollection dataset = new XYSeriesCollection();
         XYSeries series1 = new XYSeries("Object 1");
@@ -125,14 +117,15 @@ public class App extends JFrame {
         return dataset;
     }
 
+
     private void customizeChart(JFreeChart chart) {
         XYPlot plot = chart.getXYPlot();
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
         // sets paint color for each series
-        renderer.setSeriesPaint(0, Color.RED);
-        renderer.setSeriesPaint(1, Color.GREEN);
-        renderer.setSeriesPaint(2, Color.YELLOW);
+        renderer.setSeriesPaint(0, Color.BLACK);
+        renderer.setSeriesPaint(1, Color.LIGHT_GRAY);
+        renderer.setSeriesPaint(2, Color.DARK_GRAY);
 
         // sets thickness for series (using strokes)
         renderer.setSeriesStroke(0, new BasicStroke(4.0f));
@@ -140,14 +133,12 @@ public class App extends JFrame {
         renderer.setSeriesStroke(2, new BasicStroke(2.0f));
 
         // sets paint color for plot outlines
-        plot.setOutlinePaint(Color.BLUE);
+        plot.setOutlinePaint(Color.WHITE);
         plot.setOutlineStroke(new BasicStroke(2.0f));
 
         // sets renderer for lines
         plot.setRenderer(renderer);
 
-        // sets plot background
-        plot.setBackgroundPaint(Color.DARK_GRAY);
 
         // sets paint color for the grid lines
         plot.setRangeGridlinesVisible(true);
@@ -156,29 +147,25 @@ public class App extends JFrame {
         plot.setDomainGridlinesVisible(true);
         plot.setDomainGridlinePaint(Color.BLACK);
 
+        LegendTitle legend = chart.getLegend();
+        legend.setPosition(RectangleEdge.RIGHT);
+
     }
-
-
 
 
     public static void main(String[] args) {
         System.out.println("Hello World!");
-
         JFrame frame = new JFrame("PimpMyFridge");
         frame.setContentPane(new App().panelMain);
-
-        frame.setPreferredSize(new Dimension(800, 400));
-        frame.setBounds(100, 100, 862, 893);
+        frame.setPreferredSize(new Dimension(960, 530));
         frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new XYLineChartExample().setVisible(true);
-            }
-        });
+
+
+
+
 
     }
 
